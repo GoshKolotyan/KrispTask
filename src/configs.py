@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import  Optional
 class ArmenianAudioDatasetConfig:
     
     def __init__(
@@ -16,8 +16,11 @@ class ArmenianAudioDatasetConfig:
         
         self.remove_columns = ["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"]
         
-        #unusable characters
-        self.unusable_chars = ['`', '«', '´', '»', '՚', '՛', '՜', '՝', '՞', '։', '֊', "'", '…', "(",")",",","-",".",":"]
+        self.unusable_chars = ['`', '«', '´', '»', '՚', '՛', '՜', '՝', '՞', '։', "'", '֊', "'", '…', "(",")",",","-",".",":","’"]
+
+        self.local_train_path = "./datasets/train_dataset"
+        self.local_test_path = "./datasets/test_dataset"
+        
         
         #special tokens
         self.special_tokens = special_tokens or {
