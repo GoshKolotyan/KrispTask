@@ -1,0 +1,48 @@
+# Armenian Audio Dataset Configuration
+
+dataset_path: "mozilla-foundation/common_voice_16_0"
+language_code: "hy-AM"
+sampling_rate: 16000
+
+vocab_file_path: "vocab.json"
+local_train_path: "./datasets/train_dataset"
+local_test_path: "./datasets/test_dataset"
+local_valid_path: "./datasets/valid_dataset"
+
+remove_columns:
+  - "accent"
+  - "age"
+  - "client_id"
+  - "down_votes"
+  - "gender"
+  - "locale"
+  - "segment"
+  - "up_votes"
+
+unusable_chars:
+  - "`"
+  - "«"
+  - "´"
+  - "»"
+  - "՚"
+  - "՛"
+  - "՜"
+  - "՝"
+  - "՞"
+  - "։"
+  - "'"
+  - "֊"
+  - "'"
+  - "…"
+  - "("
+  - ")"
+  - ","
+  - "-"
+  - "."
+  - ":"
+  - "'"
+
+special_tokens:
+  word_separator: "|"
+  unknown: "[UNK]"
+  padding: "[PAD]"
