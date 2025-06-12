@@ -12,13 +12,11 @@ class HelperFunctions:
         if seed is not None:
             random.seed(seed)
 
-        # Ensure num_examples doesn't exceed dataset size
         num_examples = min(num_examples, len(dataset))
 
         log.info("Random sample from dataset")
         log.info(60 * "=")
         
-        # Use random.sample for efficient sampling without replacement
         picks = random.sample(range(len(dataset)), num_examples)
 
         df = pd.DataFrame(dataset[picks])

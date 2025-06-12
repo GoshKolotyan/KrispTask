@@ -1,5 +1,7 @@
+import json
 import numpy as np
 
+from pathlib import Path
 from evaluate import load
 from transformers import Wav2Vec2BertProcessor
 
@@ -22,3 +24,15 @@ class Metrics:
         wer = self.wer_metric.compute(predictions=pred_str, references=label_str)
 
         return {"wer":wer}
+    def save_metrics_history(self, filepath: str):
+        
+        try:
+            output_path = Path(filepath)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(self.metrics_history, f, indent=2, ensure_ascii=False)
+            
+            
+        except Exception as e:
+            raise ValueError(f"Failed to save metrics history: {e}")

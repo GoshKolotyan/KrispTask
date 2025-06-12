@@ -93,19 +93,9 @@ class ArmenianAudioDataLoading:
         def clean_armenain_text(batch: dict) -> dict:
             text = batch['sentence']
 
-            original_text = text
-
             text = re.sub(self.config.unusable_chars_pattern, "", text)
 
-            text = unicodedata.normalize("NFKC", text)
-
-            text = re.sub(r'\s+', ' ',text).strip()
-
             text = text.lower()
-
-            if len(text.split()) == 0:
-                #logging
-                text = ''
 
             batch['sentence'] = text
             return batch
@@ -143,19 +133,15 @@ class ArmenianAudioDataLoading:
         #     log.info(f"   Test: removed {test_before - test_after} empty texts")
  
     def _create_vocabulary(self) -> dict[str, int]:
-        # Extract characters from all datasets
         all_chars = set()
         
-        # Get characters from train dataset
         for example in self.train_dataset:
             all_chars.update(list(example['sentence']))
         
-        # Get characters from validation dataset if it exists
         if self.val_dataset:
             for example in self.val_dataset:
                 all_chars.update(list(example['sentence']))
         
-        # Get characters from test dataset
         for example in self.test_dataset:
             all_chars.update(list(example['sentence']))
         
@@ -198,11 +184,11 @@ class ArmenianAudioDataLoading:
 
         return self.train_dataset, self.val_dataset, self.test_dataset, self.vocab_dict
 
-if __name__ == '__main__':
-    from helper import HelperFunctions
-    configs = ArmenianAudioDatasetConfig()
+# if __name__ == '__main__':
+#     from helper import HelperFunctions
+#     configs = ArmenianAudioDatasetConfig()
 
-    dataloader = ArmenianAudioDataLoading(configs=configs)
-    train_data, val_data, test_data, vocab_dict = dataloader(use_separate_validation=True)
+#     dataloader = ArmenianAudioDataLoading(configs=configs)
+#     train_data, val_data, test_data, vocab_dict = dataloader(use_separate_validation=True)
 
-    HelperFunctions.show_random_samples(dataset=train_data, num_examples=1)
+#     HelperFunctions.show_random_samples(dataset=train_data, num_examples=1)

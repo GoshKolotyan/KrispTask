@@ -30,14 +30,8 @@ class ColoredFormatter(logging.Formatter):
 class LoggerDecorator:
     """Main decorator class for logging functionality"""
     
-    def __init__(
-        self, 
-        name: str = "armenian_asr",
-        level: Union[str, int] = logging.INFO,
-        log_file: Optional[Union[str, Path]] = None,
-        console_output: bool = True,
-        file_output: bool = False,
-        colored_output: bool = True
+    def __init__(self, name: str = "armenian_asr",level: Union[str, int] = logging.INFO,
+        log_file: Optional[Union[str, Path]] = None, console_output: bool = True,file_output: bool = False,colored_output: bool = True
     ):
         self.logger = self._setup_logger(
             name, level, log_file, console_output, file_output, colored_output
@@ -102,7 +96,7 @@ class LoggerDecorator:
                 
                 # Log function start
                 log_func = getattr(self.logger, level.lower())
-                log_func(f"🚀 Starting {func.__name__}")
+                log_func(f"Starting {func.__name__}")
                 
                 # Log arguments if requested
                 if log_args:
@@ -112,25 +106,21 @@ class LoggerDecorator:
                         log_func(f"  Kwargs: {kwargs}")
                 
                 try:
-                    # Execute function
                     result = func(*args, **kwargs)
                     
-                    # Log success
                     execution_time = time.time() - start_time
                     if log_time:
                         log_func(f"Completed {func.__name__} in {execution_time:.2f}s")
                     else:
                         log_func(f"Completed {func.__name__}")
                     
-                    # Log result if requested
                     if log_result:
                         log_func(f"  Result: {result}")
                     return result
                     
                 except Exception as e:
-                    # Log error
                     execution_time = time.time() - start_time
-                    self.logger.error(f"❌ Error in {func.__name__} after {execution_time:.2f}s: {e}")
+                    self.logger.error(f"Error in {func.__name__} after {execution_time:.2f}s: {e}")
                     raise
             
             return wrapper
@@ -153,7 +143,7 @@ class LoggerDecorator:
                 
                 log_func = getattr(self.logger, level.lower())
                 class_name = self_obj.__class__.__name__
-                log_func(f"🔧 {class_name}.{func.__name__} started")
+                log_func(f"{class_name}.{func.__name__} started")
                 
                 if log_args:
                     if args:
@@ -166,9 +156,9 @@ class LoggerDecorator:
                     
                     execution_time = time.time() - start_time
                     if log_time:
-                        log_func(f"✅ {class_name}.{func.__name__} completed in {execution_time:.2f}s")
+                        log_func(f"{class_name}.{func.__name__} completed in {execution_time:.2f}s")
                     else:
-                        log_func(f"✅ {class_name}.{func.__name__} completed")
+                        log_func(f"{class_name}.{func.__name__} completed")
                     
                     if log_result:
                         log_func(f"  Result: {result}")
@@ -177,7 +167,7 @@ class LoggerDecorator:
                     
                 except Exception as e:
                     execution_time = time.time() - start_time
-                    self.logger.error(f"❌ {class_name}.{func.__name__} failed after {execution_time:.2f}s: {e}")
+                    self.logger.error(f"{class_name}.{func.__name__} failed after {execution_time:.2f}s: {e}")
                     raise
             
             return wrapper
@@ -185,14 +175,13 @@ class LoggerDecorator:
     
     def log_phase(self, phase_name: str, level: str = "INFO"):
         """
-        Decorator for logging training phases (data loading, preprocessing, training, etc.)
+        Decorator for logging training phases 
         """
         def decorator(func: Callable) -> Callable:
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 log_func = getattr(self.logger, level.lower())
                 
-                # Phase start
                 log_func("="*60)
                 log_func(f"PHASE: {phase_name.upper()}")
                 log_func("="*60)
@@ -202,7 +191,6 @@ class LoggerDecorator:
                 try:
                     result = func(*args, **kwargs)
                     
-                    # Phase success
                     execution_time = time.time() - start_time
                     log_func("="*60)
                     log_func(f"PHASE COMPLETED: {phase_name.upper()}")
@@ -211,11 +199,10 @@ class LoggerDecorator:
                     return result
                     
                 except Exception as e:
-                    # Phase failure
                     execution_time = time.time() - start_time
                     self.logger.error("="*60)
                     self.logger.error(f"PHASE FAILED: {phase_name.upper()}")
-                    self.logger.error(f"💥 Error: {e}")
+                    self.logger.error(f"Error: {e}")
                     self.logger.error("="*60)
                     raise
             
@@ -239,16 +226,13 @@ class LoggerDecorator:
     
     
     
-    # Convenience methods for direct logging
-    def info(self, msg: str): self.logger.info(f"ℹ️  {msg}")
-    def debug(self, msg: str): self.logger.debug(f"🐛 {msg}")
-    def warning(self, msg: str): self.logger.warning(f"⚠️  {msg}")
-    def error(self, msg: str): self.logger.error(f"🚨 {msg}")
-    def critical(self, msg: str): self.logger.critical(f"💥 {msg}")
-    def success(self, msg: str): self.logger.info(f"✅ {msg}")
-    def progress(self, msg: str): self.logger.info(f"🔄 {msg}")
+    def info(self, msg: str): self.logger.info(f"Info {msg}")
+    def debug(self, msg: str): self.logger.debug(f"Debug {msg}")
+    def warning(self, msg: str): self.logger.warning(f"Warrrning {msg}")
+    def error(self, msg: str): self.logger.error(f"Error {msg}")
+    def success(self, msg: str): self.logger.info(f" {msg}")
+    def progress(self, msg: str): self.logger.info(f"Processing {msg}")
 
-# Create default logger instance
 log = LoggerDecorator(
     name="armenian_asr",
     level=logging.INFO,

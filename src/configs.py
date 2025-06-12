@@ -10,7 +10,6 @@ class ArmenianAudioDatasetConfig:
         self.unusable_chars_pattern = self._create_char_pattern()
     
     def _load_from_yaml(self, config_path: str)->None:
-        """Load configuration from YAML file"""
         with open(config_path, 'r', encoding='utf-8') as file:
             config = yaml.safe_load(file)
         
@@ -24,9 +23,16 @@ class ArmenianAudioDatasetConfig:
         self.local_train_path = config.get('local_train_path')
         self.local_test_path = config.get('local_test_path')
         self.local_valid_path = config.get("local_valid_path")
+        self.model_name = config.get("model_name")
         
         self.special_tokens = config.get('special_tokens')
-    
+
+        self.get_model_args_dict = config.get("get_model_args_dict")
+        self.script_args = config.get("script_args")  # Add this line
+
+        self.get_training_args_dict = config.get("get_training_args_dict")
+
+
     def _create_char_pattern(self) -> str:
         escaped_chars = re.escape(''.join(self.unusable_chars))
         return f'[{escaped_chars}]'

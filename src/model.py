@@ -89,7 +89,7 @@ class ModelBuilding:
 
         return processor
 
-
+#Just copy paseted from notebook of tutorial
 @dataclass
 class DataCollatorCTCWithPadding:
 
