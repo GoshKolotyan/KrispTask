@@ -1,0 +1,8 @@
+datasets
+torch
+transformers
+torchaudio
+jiwer
+accelerate
+evaluate
+pandas
