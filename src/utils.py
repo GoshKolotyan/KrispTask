@@ -18,20 +18,20 @@ class ArmenianAudio(Dataset):
         self._load_dataset()
 
     def _load_dataset(self) -> None:
-        print("Loading datasets...")
+        # print("Loading datasets...")
                 
         if os.path.exists(self.config.local_train_path) and os.path.exists(self.config.local_test_path):
             try:
-                print("Loading from local cache...")
+                # print("Loading from local cache...")
                 self.train_dataset = load_from_disk(self.config.local_train_path)
                 self.test_dataset = load_from_disk(self.config.local_test_path)
-                print("Successfully loaded from local cache")
+                # print("Successfully loaded from local cache")
             except Exception as e:
-                print(f"Failed to load from cache: {e}")
-                print("Falling back to remote download...")
+                # print(f"Failed to load from cache: {e}")
+                # print("Falling back to remote download...")
                 self._download_and_save_datasets()
         else:
-            print("Local cache not found. Downloading from remote...")
+            # print("Local cache not found. Downloading from remote...")
             self._download_and_save_datasets()
         
         #remove unnecessary columns
@@ -184,7 +184,6 @@ class ArmenianAudio(Dataset):
 
 
 def test_preprocessing():
-    """Test the complete preprocessing pipeline."""
     print("=== Testing Audio Preprocessing Pipeline ===")
     
     config = ArmenianAudioDatasetConfig()
@@ -219,6 +218,6 @@ def test_preprocessing():
 
          # print("\nPreprocessing test completed successfully!")
         
-#### Change token for ```ու``` 
+####TODO Change token for ```ու``` 
 if __name__ == "__main__":
     test_preprocessing()

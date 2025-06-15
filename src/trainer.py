@@ -13,7 +13,7 @@ class ArmenianASRTainer:
     def __init__(self, configs:ArmenianAudioDatasetConfig):
         self.configs = configs
         self.model_args = self.configs.get_model_args_dict  # Model config
-        self.args = self.configs.script_args  # Script arguments
+        self.args = self.configs.script_args  # arguments
 
         self.processor = None
         self.model = None
@@ -153,7 +153,7 @@ class ArmenianASRTainer:
 
         training_args = TrainingArguments(**training_config)
         
-        log.info("📋 Training Configuration:")
+        log.info("Training Configuration:")
         for key, value in training_config.items():
             log.info(f"   {key}: {value}")
         

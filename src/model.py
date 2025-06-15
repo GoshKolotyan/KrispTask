@@ -120,23 +120,23 @@ class DataCollatorCTCWithPadding:
 
         return batch
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    from loader import ArmenianAudioDataLoading
+#     from loader import ArmenianAudioDataLoading
 
-    configs = ArmenianAudioDatasetConfig()
+#     configs = ArmenianAudioDatasetConfig()
 
-    dataloader = ArmenianAudioDataLoading(configs=configs)
+#     dataloader = ArmenianAudioDataLoading(configs=configs)
 
-    model_builder = ModelBuilding(configs=configs)
-    train_data, val_data, test_data, vocab_dict = dataloader(use_separate_validation=True)
+#     model_builder = ModelBuilding(configs=configs)
+#     train_data, val_data, test_data, vocab_dict = dataloader(use_separate_validation=True)
 
-    # HelperFunctions.show_random_samples(dataset=train_data, num_examples=1)
+#     # HelperFunctions.show_random_samples(dataset=train_data, num_examples=1)
 
-    processor = model_builder(vocab_dict=vocab_dict, 
-                              model_name="facebook/w2v-bert-2.0", 
-                              output_path="./model_outputs", 
-                              push2hub=False,
-                              save_pretrained=True)
+#     processor = model_builder(vocab_dict=vocab_dict, 
+#                               model_name="facebook/w2v-bert-2.0", 
+#                               output_path="./model_outputs", 
+#                               push2hub=False,
+#                               save_pretrained=True)
     
-    data_collator = DataCollatorCTCWithPadding(processor=processor, padding=True)
+#     data_collator = DataCollatorCTCWithPadding(processor=processor, padding=True)

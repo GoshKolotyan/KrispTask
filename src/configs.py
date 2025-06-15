@@ -28,8 +28,7 @@ class ArmenianAudioDatasetConfig:
         self.special_tokens = config.get('special_tokens')
 
         self.get_model_args_dict = config.get("get_model_args_dict")
-        self.script_args = config.get("script_args")  # Add this line
-
+        self.script_args = config.get("script_args")  
         self.get_training_args_dict = config.get("get_training_args_dict")
 
 
