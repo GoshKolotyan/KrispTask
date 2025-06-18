@@ -1,0 +1,60 @@
+# Training args
+training:
+  output_dir: "./wav2vec2-armenian-frozen"
+  group_by_length: true
+  per_device_train_batch_size: 32  # RTX 3060 can handle larger batches
+  per_device_eval_batch_size: 16
+  gradient_accumulation_steps: 2   # Simulates batch_size=64
+  eval_strategy: "steps"
+  num_train_epochs: 10
+  gradient_checkpointing: true
+  fp16: true
+  save_steps: 200
+  eval_steps: 200
+  logging_steps: 50
+  learning_rate: 5e-5
+  warmup_steps: 200
+  save_total_limit: 4
+  push_to_hub: true
+
+# Model Configuration
+model:
+  # Pre-trained model settings
+  name: "facebook/w2v-bert-2.0"
+  
+  # Tokenizer configuration
+  unk_token: "[UNK]"
+  pad_token: "[PAD]"
+  word_delimiter_token: "|"
+  tokenizer_path: './'
+  
+  # Model hyperparameters (dropout settings)
+  attention_dropout: 0.0
+  hidden_dropout: 0.0
+  feat_proj_dropout: 0.0
+  mask_time_prob: 0.0
+  layerdrop: 0.0
+  
+  # Training settings
+  ctc_loss_reduction: "mean"
+  add_adapter: true
+  freeze_feature_layers: true
+
+# Dataset Configuration
+dataset:
+  path: "mozilla-foundation/common_voice_16_0"
+  language_code: "hy-AM"
+  sampling_rate: 16000
+
+# Repository Settings
+repository:
+  name: "w2v-bert-2.0-armenian-speech-model-version_3.1"
+
+# Text Processing
+text_processing:
+  chars_to_remove_regex: '[,\?\.\!\-\;\:\""%\"«»՚՛՜՝՞։֊…()\-\.,:`´''’]'
+
+# Authentication
+# WARNING: Keep this token secure and do not share publicly
+authentication:
+  hf_token: "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"
