@@ -74,28 +74,22 @@ def main():
         training_args = TrainingArguments(
             output_dir=repo_name,
             group_by_length=True,
-            per_device_train_batch_size=64,
+            per_device_train_batch_size=32,
             per_device_eval_batch_size=16,
-            gradient_accumulation_steps=2,
+            gradient_accumulation_steps=4,
             eval_strategy="steps",
-            num_train_epochs=25,
-            gradient_checkpointing=False,
+            num_train_epochs=30,
+            gradient_checkpointing=True,
+            lr_scheduler_type="cosine",      # Smooth decay
             fp16=True,
-            save_steps=200,
-            eval_steps=200,
-            logging_steps=100,
-            learning_rate=5e-3,
-            weight_decay=0.01,
-            warmup_steps=500,
+            save_steps=100,
+            eval_steps=100,
+            logging_steps=50,
+            learning_rate=1e-3,
+            warmup_steps=300,
             save_total_limit=10,
-            load_best_model_at_end=True,
-            metric_for_best_model="eval_loss",
-            greater_is_better=False,
-            push_to_hub=getattr(config, 'push_to_hub', False),
+            push_to_hub=getattr(config, 'push_to_hub', True),
             hub_model_id=repo_name if getattr(config, 'push_to_hub', False) else None,
-            remove_unused_columns=False,
-            dataloader_num_workers=4,
-            report_to=None,
         )
         
         print("Training arguments configured successfully")
@@ -107,7 +101,7 @@ def main():
             args=training_args,
             train_dataset=common_voice_train,
             eval_dataset=common_voice_test,
-            tokenizer=processor.feature_extractor,
+            tokenizer=processor,
             compute_metrics=metrics.compute_metrics,
         )
         
@@ -118,8 +112,6 @@ def main():
         print(f"Vocabulary: {len(vocab_dict)} characters")
         print(f"Train samples: {len(common_voice_train):,}")
         print(f"Test samples: {len(common_voice_test):,}")
-        print(f"Trainable params: {stats.get('trainable_params', 'Unknown'):,}")
-        print(f"Frozen params: {stats.get('frozen_params', 'Unknown'):,}")
         batch_size_total = training_args.per_device_train_batch_size * training_args.gradient_accumulation_steps
         print(f"Effective batch size: {batch_size_total}")
         print(f"Learning rate: {training_args.learning_rate}")
@@ -161,6 +153,8 @@ def main():
 
 if __name__ == "__main__":
     trainer, model, processor = main()
+
+    trainer.push_to_hub()
     
     if trainer is not None:
         print(f"\nTraining completed! Model ready for inference.")

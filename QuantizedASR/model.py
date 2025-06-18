@@ -23,11 +23,14 @@ class ArmenianModelLoader:
         )
         return self.feature_extractor
 
-    def create_tokenizer(self, vocab_dict: Dict[str, int]):
+  
+    def create_tokenizer(self, vocab_dict: str="vocab.json"):
         """Create tokenizer from vocabulary dictionary."""
-        self.vocab = vocab_dict
+
+        vocab_file = "vocab.json"
         self.tokenizer = Wav2Vec2CTCTokenizer.from_pretrained(
-            self.configs.model.tokenizer_path,
+            vocab_file=vocab_file,
+            pretrained_model_name_or_path=self.configs.model.tokenizer_path,
             unk_token=self.configs.model.unk_token,
             pad_token=self.configs.model.pad_token,
             word_delimiter_token=self.configs.model.word_delimiter_token
@@ -69,13 +72,21 @@ class ArmenianModelLoader:
         if self.model is None:
             raise ValueError("Model must be built first")
         
-        #freeze wav2vec2_bert backbone
-        for param in self.model.wav2vec2_bert.parameters():
-            param.requires_grad = False
         
-        #lm_head trainable
-        for param in self.model.lm_head.parameters():
+        for param in self.model.parameters():
             param.requires_grad = True
+            
+        # Freeze only CNN feature extractor
+        for param in self.model.wav2vec2_bert.feature_projection.parameters():
+            param.requires_grad = False
+
+        #freeze wav2vec2_bert backbone
+        # for param in self.model.wav2vec2_bert.parameters():
+        #     param.requires_grad = False
+        
+        # #lm_head trainable
+        # for param in self.model.lm_head.parameters():
+        #     param.requires_grad = True
 
     def push_to_hub(self, repo_name: str):
         """Push tokenizer and processor to Hugging Face Hub."""
