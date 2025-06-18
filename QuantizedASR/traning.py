@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Armenian ASR Training Script
-Professional version for production use
-"""
-
 import os
 import torch
 from transformers import TrainingArguments, Trainer
@@ -17,20 +11,17 @@ from metrics import Metrics
 
 
 def main():
-    """Main training pipeline for Armenian ASR."""
     
     print("Starting Armenian ASR Training Pipeline")
     print("=" * 60)
     
     try:
-        # Load Configuration
         print("Loading configuration...")
         config = QuantizeConfigs("configs/quantize_configs.yml")
         
         repo_name = getattr(config, 'repo_name', './wav2vec2-armenian-frozen')
         print(f"Output directory: {repo_name}")
         
-        # Load Dataset and Vocabulary
         print("\nLoading datasets...")
         dataloader = ArmenianDataLoader(config)
         train_dataset, test_dataset, vocab_dict = dataloader(verbose=True)
@@ -39,11 +30,9 @@ def main():
         print(f"Test examples: {len(test_dataset):,}") 
         print(f"Vocabulary size: {len(vocab_dict)}")
         
-        # Show sample
         sample = train_dataset[0]
         print(f"Sample text: '{sample['sentence'][:50]}...'")
         
-        # Load Model and Processor
         print("\nLoading model...")
         model_loader = ArmenianModelLoader(config)
         
@@ -53,17 +42,13 @@ def main():
             freeze_layers=True
         )
         
-        # Show model statistics
-        print("Model loading completed successfully")
         
-        # Prepare Datasets for Training
         print("\nPreparing datasets...")
         
         # Create prepare function with processor
         def prepare_batch(batch):
             return prepare_dataset(batch, processor)
         
-        # Apply to both datasets
         print("Processing training data...")
         common_voice_train = train_dataset.map(
             prepare_batch, 
@@ -80,16 +65,12 @@ def main():
         
         print("Dataset preparation completed successfully")
         
-        # Setup Training Components
         print("\nSetting up training components...")
         
-        # Data collator
         data_collator = DataCollatorCTCWithPadding(processor=processor)
         
-        # Metrics
         metrics = Metrics(processor=processor)
         
-        # Training arguments (optimized for frozen model training)
         training_args = TrainingArguments(
             output_dir=repo_name,
             group_by_length=True,
@@ -119,7 +100,6 @@ def main():
         
         print("Training arguments configured successfully")
         
-        # Create Trainer
         print("\nCreating trainer...")
         trainer = Trainer(
             model=model,
@@ -132,8 +112,6 @@ def main():
         )
         
         print("Trainer created successfully")
-        
-        # Print Training Summary
         print("\nTRAINING SUMMARY")
         print("-" * 40)
         print(f"Model: {type(model).__name__}")
@@ -148,11 +126,9 @@ def main():
         print(f"Epochs: {training_args.num_train_epochs}")
         print(f"Output directory: {training_args.output_dir}")
         
-        # Start Training
         print(f"\nStarting training...")
         print("=" * 60)
         
-        # Check GPU availability
         if torch.cuda.is_available():
             device_name = torch.cuda.get_device_name()
             total_memory = torch.cuda.get_device_properties(0).total_memory / 1e9
@@ -161,10 +137,8 @@ def main():
         else:
             print("Using CPU (training will be slower)")
         
-        # Start training
         trainer.train()
         
-        # Save Final Model
         print(f"\nSaving final model...")
         trainer.save_model()
         processor.save_pretrained(training_args.output_dir)
