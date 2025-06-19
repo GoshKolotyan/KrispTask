@@ -1,3 +1,4 @@
+from torch import nn
 from typing import Dict, Optional, Tuple
 from transformers import (
     Wav2Vec2CTCTokenizer, 
@@ -6,7 +7,7 @@ from transformers import (
     Wav2Vec2BertForCTC
 )
 from configs import QuantizeConfigs
-
+from lora import LoRALayer
 
 class ArmenianModelLoader:
     def __init__(self, configs: QuantizeConfigs):
@@ -16,6 +17,7 @@ class ArmenianModelLoader:
         self.feature_extractor: SeamlessM4TFeatureExtractor = None 
         self.processor: Wav2Vec2BertProcessor = None
         self.model: Wav2Vec2BertForCTC = None
+        self.lora = LoRALayer
 
     def load_feature_extractor(self):
         self.feature_extractor = SeamlessM4TFeatureExtractor.from_pretrained(
@@ -67,26 +69,55 @@ class ArmenianModelLoader:
         )
         return self.model
 
-    def freeze_backbone(self):
-        """Freezing all layers except the classification head."""
+
+    def freeze_backbone(self, target_modules=["query", "key", "value", "dense"], rank=8, alpha=16):
+        """
+        Apply LoRA to specific modules and freeze the rest
+        """
         if self.model is None:
             raise ValueError("Model must be built first")
         
-        
+        # Step 1: First freeze ALL parameters
         for param in self.model.parameters():
-            param.requires_grad = True
-            
-        # Freeze only CNN feature extractor
-        for param in self.model.wav2vec2_bert.feature_projection.parameters():
             param.requires_grad = False
-
-        #freeze wav2vec2_bert backbone
-        # for param in self.model.wav2vec2_bert.parameters():
-        #     param.requires_grad = False
         
-        # #lm_head trainable
-        # for param in self.model.lm_head.parameters():
-        #     param.requires_grad = True
+        # Step 2: Apply LoRA to target modules
+        applied_lora = []
+        for name, module in self.model.named_modules():
+            if any(target in name for target in target_modules):
+                if isinstance(module, nn.Linear):
+                    # Get parent module and child name
+                    parent_name = '.'.join(name.split('.')[:-1])
+                    child_name = name.split('.')[-1]
+                    
+                    # Get parent module
+                    if parent_name:
+                        parent = self.model.get_submodule(parent_name)
+                    else:
+                        parent = self.model
+                    
+                    # Replace with LoRA version
+                    lora_layer = LoRALayer(module, rank=rank, alpha=alpha)
+                    setattr(parent, child_name, lora_layer)
+                    applied_lora.append(name)
+                    print(f"Applied LoRA to {name}")
+        
+        # Step 3: Make LM head trainable
+        for param in self.model.lm_head.parameters():
+            param.requires_grad = True
+        
+        # Step 4: Print summary
+        trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+        total_params = sum(p.numel() for p in self.model.parameters())
+        
+        print(f"\n=== LoRA Application Summary ===")
+        print(f"Applied LoRA to {len(applied_lora)} modules:")
+        for module_name in applied_lora:
+            print(f"  - {module_name}")
+        print(f"Trainable parameters: {trainable_params:,} ({100*trainable_params/total_params:.2f}%)")
+        print(f"Total parameters: {total_params:,}")
+        
+        return self.model
 
     def push_to_hub(self, repo_name: str):
         """Push tokenizer and processor to Hugging Face Hub."""

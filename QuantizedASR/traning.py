@@ -1,4 +1,5 @@
-import os
+from warnings import filterwarnings
+filterwarnings("ignore", category=UserWarning)  
 import torch
 from transformers import TrainingArguments, Trainer
 
@@ -45,7 +46,6 @@ def main():
         
         print("\nPreparing datasets...")
         
-        # Create prepare function with processor
         def prepare_batch(batch):
             return prepare_dataset(batch, processor)
         
@@ -74,19 +74,21 @@ def main():
         training_args = TrainingArguments(
             output_dir=repo_name,
             group_by_length=True,
-            per_device_train_batch_size=32,
-            per_device_eval_batch_size=16,
-            gradient_accumulation_steps=4,
+            per_device_train_batch_size=64,
+            per_device_eval_batch_size=32,
+            gradient_accumulation_steps=2,
             eval_strategy="steps",
-            num_train_epochs=30,
+            num_train_epochs=15,
             gradient_checkpointing=True,
             lr_scheduler_type="cosine",      # Smooth decay
             fp16=True,
             save_steps=100,
-            eval_steps=100,
-            logging_steps=50,
-            learning_rate=1e-3,
+            eval_steps=50,
+            logging_steps=10,
             warmup_steps=300,
+            learning_rate=5e-5,          # Slightly lower
+            weight_decay=0.02,           # Higher regularization
+            warmup_ratio=0.1,            # More warmup
             save_total_limit=10,
             push_to_hub=getattr(config, 'push_to_hub', True),
             hub_model_id=repo_name if getattr(config, 'push_to_hub', False) else None,
