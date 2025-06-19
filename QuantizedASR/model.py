@@ -77,36 +77,34 @@ class ArmenianModelLoader:
         if self.model is None:
             raise ValueError("Model must be built first")
         
-        # Step 1: First freeze ALL parameters
+        #freeze all
         for param in self.model.parameters():
             param.requires_grad = False
         
-        # Step 2: Apply LoRA to target modules
+        #LoRA to target modules
         applied_lora = []
         for name, module in self.model.named_modules():
             if any(target in name for target in target_modules):
                 if isinstance(module, nn.Linear):
-                    # Get parent module and child name
+                    #parent module and child name
                     parent_name = '.'.join(name.split('.')[:-1])
                     child_name = name.split('.')[-1]
                     
-                    # Get parent module
+                    #parent module
                     if parent_name:
                         parent = self.model.get_submodule(parent_name)
                     else:
                         parent = self.model
                     
-                    # Replace with LoRA version
                     lora_layer = LoRALayer(module, rank=rank, alpha=alpha)
                     setattr(parent, child_name, lora_layer)
                     applied_lora.append(name)
                     print(f"Applied LoRA to {name}")
         
-        # Step 3: Make LM head trainable
         for param in self.model.lm_head.parameters():
             param.requires_grad = True
         
-        # Step 4: Print summary
+        #summary
         trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
         total_params = sum(p.numel() for p in self.model.parameters())
         
