@@ -4,7 +4,7 @@ from transformers import (
     Wav2Vec2CTCTokenizer, 
     SeamlessM4TFeatureExtractor, 
     Wav2Vec2BertProcessor,
-    Wav2Vec2BertForCTC
+    Wav2Vec2BertForCTC,
 )
 from configs import QuantizeConfigs
 from lora import LoRALayer
@@ -19,28 +19,28 @@ class ArmenianModelLoader:
         self.model: Wav2Vec2BertForCTC = None
         self.lora = LoRALayer
 
-    def load_feature_extractor(self):
+    def load_feature_extractor(self) -> SeamlessM4TFeatureExtractor:
         self.feature_extractor = SeamlessM4TFeatureExtractor.from_pretrained(
             self.configs.model.name
         )
         return self.feature_extractor
 
   
-    def create_tokenizer(self, vocab_dict: str="vocab.json"):
-        """Create tokenizer from vocabulary dictionary."""
-
-        vocab_file = "vocab.json"
-        self.tokenizer = Wav2Vec2CTCTokenizer.from_pretrained(
-            vocab_file=vocab_file,
-            pretrained_model_name_or_path=self.configs.model.tokenizer_path,
+    def create_tokenizer(self, vocab_dict:str = "vocab.json") -> Wav2Vec2CTCTokenizer:
+        """tokenizer from vocabulary dictionary"""
+        
+        self.tokenizer = Wav2Vec2CTCTokenizer(
+            vocab_file= vocab_dict,  # Pass vocab_dict to constructor, not from_pretrained
             unk_token=self.configs.model.unk_token,
             pad_token=self.configs.model.pad_token,
             word_delimiter_token=self.configs.model.word_delimiter_token
         )
+        print(f"Tokenizer created with {len(self.tokenizer)} tokens")
+        print(f"Vocabulary: {self.tokenizer.get_vocab()}")
         return self.tokenizer
 
     def build_processor(self):
-        """Build the processor combining feature extractor and tokenizer."""
+        """processor combining feature extractor and tokenizer."""
         if self.feature_extractor is None or self.tokenizer is None:
             raise ValueError("Feature extractor and tokenizer must be loaded first")
         
@@ -51,7 +51,7 @@ class ArmenianModelLoader:
         return self.processor
 
     def build_model(self):
-        """Build the Wav2Vec2-BERT model for CTC."""
+        """Wav2Vec2-BERT model for CTC."""
         if self.processor is None:
             raise ValueError("Processor must be built first")
         
@@ -70,10 +70,8 @@ class ArmenianModelLoader:
         return self.model
 
 
-    def freeze_backbone(self, target_modules=["query", "key", "value", "dense"], rank=8, alpha=16):
-        """
-        Apply LoRA to specific modules and freeze the rest
-        """
+    def freeze_backbone(self, target_modules=["query", "key", "value", "dense"], rank=1024, alpha=2048):
+        """LoRA to specific modules and freeze the rest"""
         if self.model is None:
             raise ValueError("Model must be built first")
         
@@ -131,7 +129,7 @@ class ArmenianModelLoader:
 
     def __call__(
         self, 
-        vocab_dict: Dict[str, int], 
+        vocab_dict: Dict[str, int]=None, 
         repo_name: Optional[str] = None,
         freeze_layers: bool = True
     ) -> Tuple[Wav2Vec2BertForCTC, Wav2Vec2BertProcessor]:
@@ -140,7 +138,7 @@ class ArmenianModelLoader:
         self.load_feature_extractor()
         
         #tokenizer
-        self.create_tokenizer(vocab_dict)
+        self.create_tokenizer()
         
         #processor
         self.build_processor()
@@ -159,7 +157,7 @@ class ArmenianModelLoader:
         return self.model, self.processor
 
 
-# Example usage
+# # Example usage
 # if __name__ == "__main__":
 #     from configs import QuantizeConfigs
     
@@ -167,52 +165,52 @@ class ArmenianModelLoader:
 #     print(configs.model)
 #     loader = ArmenianModelLoader(configs)
     
-#     vocab_dict = {
-#                 "ա": 1,
-#                 "բ": 2,
-#                 "գ": 3,
-#                 "դ": 4,
-#                 "ե": 5,
-#                 "զ": 6,
-#                 "է": 7,
-#                 "ը": 8,
-#                 "թ": 9,
-#                 "ժ": 10,
-#                 "ի": 11,
-#                 "լ": 12,
-#                 "խ": 13,
-#                 "ծ": 14,
-#                 "կ": 15,
-#                 "հ": 16,
-#                 "ձ": 17,
-#                 "ղ": 18,
-#                 "ճ": 19,
-#                 "մ": 20,
-#                 "յ": 21,
-#                 "ն": 22,
-#                 "շ": 23,
-#                 "ո": 24,
-#                 "չ": 25,
-#                 "պ": 26,
-#                 "ջ": 27,
-#                 "ռ": 28,
-#                 "ս": 29,
-#                 "վ": 30,
-#                 "տ": 31,
-#                 "ր": 32,
-#                 "ց": 33,
-#                 "ւ": 34,
-#                 "փ": 35,
-#                 "ք": 36,
-#                 "օ": 37,
-#                 "ֆ": 38,
-#                 "|": 0,
-#                 "[UNK]": 39,
-#                 "[PAD]": 40
-#                 }
+#     # vocab_dict = {
+#                 # "ա": 1,
+#                 # "բ": 2,
+#                 # "գ": 3,
+#                 # "դ": 4,
+#                 # "ե": 5,
+#                 # "զ": 6,
+#                 # "է": 7,
+#                 # "ը": 8,
+#                 # "թ": 9,
+#                 # "ժ": 10,
+#                 # "ի": 11,
+#                 # "լ": 12,
+#                 # "խ": 13,
+#                 # "ծ": 14,
+#                 # "կ": 15,
+#                 # "հ": 16,
+#                 # "ձ": 17,
+#                 # "ղ": 18,
+#                 # "ճ": 19,
+#                 # "մ": 20,
+#                 # "յ": 21,
+#                 # "ն": 22,
+#                 # "շ": 23,
+#                 # "ո": 24,
+#                 # "չ": 25,
+#                 # "պ": 26,
+#                 # "ջ": 27,
+#                 # "ռ": 28,
+#                 # "ս": 29,
+#                 # "վ": 30,
+#                 # "տ": 31,
+#                 # "ր": 32,
+#                 # "ց": 33,
+#                 # "ւ": 34,
+#                 # "փ": 35,
+#                 # "ք": 36,
+#                 # "օ": 37,
+#                 # "ֆ": 38,
+#                 # "|": 0,
+#                 # "[UNK]": 39,
+#                 # "[PAD]": 40
+#                 # }
     
 #     model, processor = loader(
-#         vocab_dict=vocab_dict,
+#         # vocab_dict=vocab_dict,
 #         repo_name=configs.repo_name,
 #         freeze_layers=True
 #     )

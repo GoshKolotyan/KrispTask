@@ -1,5 +1,3 @@
-from warnings import filterwarnings
-filterwarnings("ignore", category=UserWarning)  
 import torch
 from transformers import TrainingArguments, Trainer
 
@@ -9,7 +7,8 @@ from dataloading import ArmenianDataLoader
 from model import ArmenianModelLoader
 from helpers import prepare_dataset, DataCollatorCTCWithPadding
 from metrics import Metrics 
-
+from warnings import filterwarnings
+filterwarnings("ignore")
 
 def main():
     
@@ -74,22 +73,18 @@ def main():
         training_args = TrainingArguments(
             output_dir=repo_name,
             group_by_length=True,
-            per_device_train_batch_size=64,
-            per_device_eval_batch_size=32,
+            per_device_train_batch_size=16,
             gradient_accumulation_steps=2,
             eval_strategy="steps",
-            num_train_epochs=15,
+            num_train_epochs=150,
             gradient_checkpointing=True,
-            lr_scheduler_type="cosine",      # Smooth decay
             fp16=True,
-            save_steps=100,
-            eval_steps=50,
-            logging_steps=10,
-            warmup_steps=300,
-            learning_rate=5e-5,          # Slightly lower
-            weight_decay=0.02,           # Higher regularization
-            warmup_ratio=0.1,            # More warmup
-            save_total_limit=10,
+            save_steps=200,
+            eval_steps=200,
+            logging_steps=200,
+            warmup_steps=500,
+            learning_rate=1e-4,          # Slightly lower
+            save_total_limit=3,
             push_to_hub=getattr(config, 'push_to_hub', True),
             hub_model_id=repo_name if getattr(config, 'push_to_hub', False) else None,
         )

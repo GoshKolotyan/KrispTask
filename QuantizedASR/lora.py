@@ -4,7 +4,7 @@ import torch.nn as nn
 
 
 class LoRALayer(nn.Module):
-    def __init__(self, original_layer, rank=16, alpha=32):
+    def __init__(self, original_layer, rank, alpha):
         super(LoRALayer, self).__init__()
         self.original_layer = original_layer
         self.rank = rank
