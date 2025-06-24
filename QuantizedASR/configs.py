@@ -54,11 +54,11 @@ class LoRAConfig:
     dropout: float
 
 @dataclass
-class QuantizationConfig:  # Fixed typo: QunatizeConfig -> QuantizationConfig
-    enabled: bool           # Fixed: enable -> enabled
-    bits: int              # Fixed: bites -> bits  
+class QuantizationConfig:  
+    enabled: bool          
+    bits: int                
     quant_type: str
-    double_quant: bool     # Fixed: download -> double_quant
+    double_quant: bool     
     compute_dtype: str
     int8_threshold: float
 
