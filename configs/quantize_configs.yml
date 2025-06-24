@@ -4,11 +4,11 @@ training:
   group_by_length: true
   per_device_train_batch_size: 32  # RTX 3060 can handle larger batches
   per_device_eval_batch_size: 16
-  gradient_accumulation_steps: 2   # Simulates batch_size=64
+  gradient_accumulation_steps: 2   # Simulates batch_size=32
   eval_strategy: "steps"
   num_train_epochs: 10
   gradient_checkpointing: true
-  fp16: true
+  fp16: false
   save_steps: 200
   eval_steps: 200
   logging_steps: 50
@@ -48,3 +48,22 @@ text_processing:
 
 authentication:
   hf_token: "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"
+
+quantization:
+  enabled: true
+  bits: 4                   
+  quant_type: "nf4"         
+  double_quant: false        # Use double quantization for extra compression
+  compute_dtype: "float32" 
+  int8_threshold: 6.0       
+lora:
+  rank: 32                  # Higher rank for better adaptation (16-64 recommended)
+  alpha: 64                 # Usually 2x rank
+  target_modules: 
+    - "linear_q" 
+    - "linear_k" 
+    - "linear_v" 
+    - "linear_out"
+    - "intermediate_dense"
+    - "output_dense"
+  dropout: 0.1
