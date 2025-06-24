@@ -23,6 +23,7 @@ class TrainingConfig:
     warmup_steps: int
     save_total_limit: int
     push_to_hub: bool
+    save_strategy: str
 
 @dataclass
 class ModelConfig:

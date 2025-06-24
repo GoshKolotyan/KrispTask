@@ -39,7 +39,6 @@ class ArmenianASRTrainer:
         model_loader = QuantizedArmenianModelLoader(self.config)
         
         self.model, self.processor = model_loader(
-            # repo_name=self.repo_name if hasattr(self.config, 'push_to_hub') and self.config.push_to_hub else None,
             add_adapters=True
         )
         
@@ -72,7 +71,7 @@ class ArmenianASRTrainer:
         
         return common_voice_train, common_voice_test
     
-    def setup_training_components(self, vocab_dict: Dict) -> Tuple[Any, Any, TrainingArguments]:
+    def setup_training_components(self) -> Tuple[Any, Any, TrainingArguments]:
         logger.info("Setting up training components...")
         
         data_collator = DataCollatorCTCWithPadding(processor=self.processor)
@@ -92,9 +91,8 @@ class ArmenianASRTrainer:
             eval_steps=self.config.training.eval_steps,
             logging_steps=self.config.training.logging_steps,
             warmup_steps=self.config.training.warmup_steps,
-            learning_rate=self.config.training.learning_rate,
+            learning_rate=float(self.config.training.learning_rate),
             push_to_hub=self.config.training.push_to_hub,
-            hub_model_id=self.config.training.hub_model_id
         )
         
         return data_collator, self.metrics, training_args
@@ -145,9 +143,6 @@ class ArmenianASRTrainer:
         
         try:
             self.trainer.train()
-        except KeyboardInterrupt:
-            logger.info("Training interrupted by user")
-            raise
         except Exception as e:
             logger.error(f"Training failed: {e}")
             raise
@@ -175,25 +170,25 @@ class ArmenianASRTrainer:
             raise
     
     def cleanup(self) -> None:
-        """Clean up GPU memory."""
+        """clean GPU memory."""
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
     
     def run_full_training_pipeline(self) -> Tuple[Trainer, Any, Any]:
-        """Run the complete training pipeline."""
+        """complete training pipeline."""
         try:
             train_dataset, test_dataset, vocab_dict = self.load_datasets()
             self.load_model()
             
             train_dataset_prepared, test_dataset_prepared = self.prepare_datasets(train_dataset, test_dataset)
             
-            data_collator, metrics, training_args = self.setup_training_components(vocab_dict)
+            data_collator, metrics, training_args = self.setup_training_components()
             self.create_trainer(data_collator, training_args, train_dataset_prepared, test_dataset_prepared)
             
             self.log_training_summary(vocab_dict, train_dataset_prepared, test_dataset_prepared, training_args)
             self.train()
             
-            # self.save_model_and_metrics(training_args) not need now 
+            # self.save_model_and_metrics(training_args) not need now
             
             return self.trainer, self.model, self.processor
             
