@@ -72,6 +72,7 @@ def main():
     
     metrics = Metrics(processor=processor)
     
+
     training_args = TrainingArguments(
         output_dir=repo_name,
         group_by_length=True,
@@ -80,15 +81,16 @@ def main():
         eval_strategy="steps",
         num_train_epochs=20,
         gradient_checkpointing=True,
-        fp16=False,                           # ✅ Your fix
-        bf16=False,                           # Optional: explicit disable
-        dataloader_pin_memory=False,          # Optional: reduce memory conflicts
-        save_steps=200,
+        fp16=False,
+        
+        # SAVE ONLY AT EPOCH END:
+        save_strategy="no",     # Save at end of each epoch instead of every N steps
+        save_total_limit=2,        # Keep only last 2 checkpoints
+        
         eval_steps=200,
         logging_steps=200,
         warmup_steps=500,
         learning_rate=1e-4,
-        save_total_limit=3,
         push_to_hub=getattr(config, 'push_to_hub', True),
         hub_model_id=repo_name if getattr(config, 'push_to_hub', False) else None,
     )
