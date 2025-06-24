@@ -79,16 +79,15 @@ def main():
         per_device_train_batch_size=16,
         gradient_accumulation_steps=2,
         eval_strategy="steps",
-        num_train_epochs=20,
+        num_train_epochs=2,
         gradient_checkpointing=True,
         fp16=False,
         
-        # SAVE ONLY AT EPOCH END:
-        save_strategy="no",     # Save at end of each epoch instead of every N steps
-        save_total_limit=2,        # Keep only last 2 checkpoints
+        save_strategy="no",     
+        save_total_limit=2,       
         
-        eval_steps=200,
-        logging_steps=200,
+        eval_steps=10,
+        logging_steps=10,
         warmup_steps=500,
         learning_rate=1e-4,
         push_to_hub=getattr(config, 'push_to_hub', True),
@@ -143,6 +142,10 @@ def main():
     
     print(f"\nTraining completed successfully!")
     print(f"Model saved to: {training_args.output_dir}")
+    metrics.save_metrics_history(f"{training_args.output_dir}/metrics_history.json")
+    best_metrics = metrics.get_best_metrics()
+    print(f"Best WER: {best_metrics.get('best_wer', 'N/A'):.4f}")
+    print(f"Best CER: {best_metrics.get('best_cer', 'N/A'):.4f}")
     
     return trainer, model, processor
 
