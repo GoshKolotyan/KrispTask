@@ -16,6 +16,7 @@ training:
   warmup_steps: 200
   save_total_limit: 4
   push_to_hub: true
+  save_strategy: "no" #for quntization
 
 model:
   name: "facebook/w2v-bert-2.0"
@@ -53,7 +54,7 @@ quantization:
   enabled: true
   bits: 4                   
   quant_type: "nf4"         
-  double_quant: false        # Use double quantization for extra compression
+  double_quant: false        # not good result with double quantization
   compute_dtype: "float32" 
   int8_threshold: 6.0       
 lora:
