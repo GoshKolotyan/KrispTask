@@ -3,11 +3,11 @@ import logging
 from typing import Tuple, Any, Dict
 from transformers import TrainingArguments, Trainer
 
-from configs import QuantizeConfigs
+from qconfigs import QuantizeConfigs
 from dataloading import ArmenianDataLoader
-from model import QuantizedArmenianModelLoader
+from qmodel import QuantizedArmenianModelLoader
 from helpers import prepare_dataset, DataCollatorCTCWithPadding
-from metrics import Metrics 
+from qmetrics import Metrics 
 
 logger = logging.getLogger(__name__)
 
